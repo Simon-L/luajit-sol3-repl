@@ -52,6 +52,7 @@ target_compile_features(soljit_exe PRIVATE cxx_std_17)
 # target_link_libraries(soljit_exe PRIVATE soljit_lib)
 
 target_include_directories(soljit_exe PUBLIC "${CMAKE_BINARY_DIR}/include")
+target_include_directories(soljit_exe PUBLIC "${PROJECT_SOURCE_DIR}/libs/async-sockets-cpp/async-sockets/include")
 add_subdirectory(libs/sol2)
 target_link_libraries(soljit_exe PRIVATE sol2)
 

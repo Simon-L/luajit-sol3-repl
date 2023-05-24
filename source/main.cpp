@@ -6,6 +6,11 @@
 
 #include <cxxopts.hpp>
 
+#include "tcpserver.hpp"
+#include <iostream>
+
+using namespace std;
+
 static void print_version(void)
 {
   fputs(LUAJIT_VERSION " -- " LUAJIT_COPYRIGHT ". " LUAJIT_URL "\n", stdout);
@@ -76,7 +81,47 @@ int main(int argc, const char* argv[]) {
       lua.set("arg", sol::nil);
     }
 
+    // Initialize server socket..
+    TCPServer<> tcpServer;
+
+    // When a new client connected:
+    tcpServer.onNewConnection = [&](TCPSocket<> *newClient) {
+        printf("Heeeey\n");
+        cout << "New client: [";
+        cout << newClient->remoteAddress() << ":" << newClient->remotePort() << "]" << endl;
+
+        // newClient->onMessageReceived = [newClient](string message) {
+        //     cout << newClient->remoteAddress() << ":" << newClient->remotePort() << " => " << message << endl;
+        //     newClient->Send("OK!");
+        // };
+
+        // If you want to use raw bytes
+        newClient->onRawMessageReceived = [newClient](const char* message, int length) {
+            cout << newClient->remoteAddress() << ":" << newClient->remotePort() << " => " << message << "(" << length << ")" << endl;
+            newClient->Send("OK!");
+        };
+
+        newClient->onSocketClosed = [newClient](int errorCode) {
+            cout << "Socket closed:" << newClient->remoteAddress() << ":" << newClient->remotePort() << " -> " << errorCode << endl;
+            cout << flush;
+        };
+    };
+
+    // Bind the server to a port.
+    tcpServer.Bind(8888, [](int errorCode, string errorMessage) {
+        // BINDING FAILED:
+        cout << errorCode << " : " << errorMessage << endl;
+    });
+
+    // Start Listening the server.
+    tcpServer.Listen([](int errorCode, string errorMessage) {
+        // LISTENING FAILED:
+        cout << errorCode << " : " << errorMessage << endl;
+    });
+
     if ((result.count("interactive")) || !(result.count("script"))) lua.script_file("../lua/rep.lua");
+
+    tcpServer.Close();
 
     return 0;
 }
