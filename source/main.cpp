@@ -86,7 +86,6 @@ int main(int argc, const char* argv[]) {
 
     // When a new client connected:
     tcpServer.onNewConnection = [&](TCPSocket<> *newClient) {
-        printf("Heeeey\n");
         cout << "New client: [";
         cout << newClient->remoteAddress() << ":" << newClient->remotePort() << "]" << endl;
 
