@@ -1,0 +1,26 @@
+{
+  "context-menu": {
+    "atom-text-editor": [
+      {
+        "label": "Send selection",
+        "command": "send-selection:send"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "Send selection",
+          "submenu": [
+            {
+              "label": "Send",
+              "command": "send-selection:send"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

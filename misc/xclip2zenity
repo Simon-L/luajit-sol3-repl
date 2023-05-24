@@ -1,0 +1,5 @@
+#! /bin/bash
+
+TEXT="$(xclip -o)"
+echo "$TEXT"
+zenity --info --text="${TEXT}"
