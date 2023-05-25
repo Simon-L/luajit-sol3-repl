@@ -35,7 +35,13 @@ if not rcfile_loaded then
   repl:loadplugin 'history'
   repl:loadplugin 'completion'
   repl:loadplugin 'autoreturn'
+  repl:loadplugin 'pretty_print'
 end
 
 print('Lua REPL ' .. tostring(repl.VERSION))
-repl:run()
+repl:prompt(1)
+for line in repl:lines() do
+  local level = repl:handleline(line)
+  repl:prompt(level)
+end
+repl:shutdown()
