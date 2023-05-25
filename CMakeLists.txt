@@ -32,6 +32,7 @@ add_custom_target(hererocks
   COMMAND hererocks -j @224129a -rlatest --verbose ${CMAKE_BINARY_DIR}
   COMMAND ${CMAKE_BINARY_DIR}/bin/luarocks build luarepl
   COMMAND ${CMAKE_BINARY_DIR}/bin/luarocks build linenoise
+  COMMAND ${CMAKE_BINARY_DIR}/bin/luarocks build lua-term
   COMMENT "Build luajit and luarocks with hererocks!"
 )
 
