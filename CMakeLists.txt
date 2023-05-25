@@ -41,16 +41,12 @@ add_custom_target(hererocks
 add_executable(soljit_exe source/main.cpp)
 add_executable(soljit::exe ALIAS soljit_exe)
 
-list(APPEND CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/libs/nng/prefix)
+list(APPEND CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/prefix)
 find_package(nng)
 
 add_subdirectory(libs/nngpp)
 target_link_libraries(soljit_exe PRIVATE nngpp)
 target_include_directories(soljit_exe PUBLIC "${PROJECT_SOURCE_DIR}/libs/nngpp/include")
-
-add_executable(server source/server.cpp)
-target_link_libraries(server PRIVATE nngpp)
-target_include_directories(server PUBLIC "${PROJECT_SOURCE_DIR}/libs/nngpp/include")
 
 add_subdirectory(libs/cxxopts)
 target_link_libraries(soljit_exe PRIVATE cxxopts)

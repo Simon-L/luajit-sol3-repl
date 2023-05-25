@@ -5,7 +5,7 @@ Relocatable LuaJIT distribution with REPL (tab completion, pretty printing etc.)
 * REPL provided by [lua-repl](https://github.com/hoelzro/lua-repl)
 * [Sol3](https://github.com/ThePhD/sol2)
 
-`hererocks` is required during build: `pip install hererocks`
+`hererocks` is required during build: `pipx install hererocks`
 
 # Building and installing
 
@@ -13,10 +13,9 @@ Clone with `git clone --recursive https://github.com/Simon-L/luajit-sol3-repl`
 
 Building and installing nng (not systemwide!) before everything is required.
 ```
-cd libs/nng
-cmake -B build
-cmake --build build
-cmake --install prefix
+cmake -S libs/nng -B libs/nng/build
+cmake --build libs/nng/build
+cmake --install libs/nng/build --prefix prefix
 ```
 
 Building the hererocks target first is required.
