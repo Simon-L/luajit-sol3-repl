@@ -1,10 +1,42 @@
 #include "lib.hpp"
 #include <cstdio>
-
-#include <sol/sol.hpp>
+#include <cstdlib>
 #include <cassert>
 
+#include <sol/sol.hpp>
 #include <cxxopts.hpp>
+#include <nngpp/nngpp.h>
+#include <nngpp/http/http.h>
+
+#define REST_URL "http://127.0.0.1:8888/api/eval"
+
+void rest_handle(nng_aio* a) try {
+	nng::aio_view aio = a;
+	nng::http::req_view req = aio.get_input<nng_http_req>(0);
+
+	auto data = req.get_data();
+
+	printf("Got data: %s with size %u\n", data.data(), data.size());
+
+	auto res = nng::http::make_res();
+	res.set_status(nng::http::status::ok);
+	res.set_header("Content-Length", "0");
+	char buf[128];
+	snprintf(buf, sizeof(buf), "Oh, hello");
+	res.set_reason( buf );
+	aio.set_output(0,res.release());
+	aio.finish();
+	aio = nullptr;
+	printf("Hey?\n");
+}
+catch( const nng::exception& e ) {
+	fprintf(stderr, "rest_handle: %s: %s\n", e.who(), e.what());
+	exit(1);
+}
+catch( ... ) {
+	fprintf(stderr, "rest_handle: unknown exception\n");
+	exit(1);
+}
 
 static void print_version(void)
 {
@@ -74,6 +106,23 @@ int main(int argc, const char* argv[]) {
     } else
     {
       lua.set("arg", sol::nil);
+    }
+
+    nng::url url(REST_URL);
+    nng::http::server server(url);
+    nng::http::handler handler( url->u_path, rest_handle );
+    handler.set_method( nng::http::verb::post );
+    handler.collect_body(true, 1024 * 128);
+    server.add_handler( std::move(handler) );
+    try {
+    	server.start();
+      printf("rest started!\n");
+    }
+    catch( const nng::exception& e ) {
+    	// who() is the name of the nng function that produced the error
+    	// what() is a description of the error code
+    	printf( "%s: %s\n", e.who(), e.what() );
+    	return 1;
     }
 
     if ((result.count("interactive")) || !(result.count("script"))) lua.script_file("../lua/rep.lua");

@@ -11,6 +11,14 @@ Relocatable LuaJIT distribution with REPL (tab completion, pretty printing etc.)
 
 Clone with `git clone --recursive https://github.com/Simon-L/luajit-sol3-repl`
 
+Building and installing nng (not systemwide!) before everything is required.
+```
+cd libs/nng
+cmake -B build
+cmake --build build
+cmake --install prefix
+```
+
 Building the hererocks target first is required.
 ```
 cmake -Bbuild

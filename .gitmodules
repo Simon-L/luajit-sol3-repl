@@ -5,3 +5,9 @@
 [submodule "libs/cxxopts"]
 	path = libs/cxxopts
 	url = https://github.com/jarro2783/cxxopts
+[submodule "libs/nng"]
+	path = libs/nng
+	url = https://github.com/nanomsg/nng
+[submodule "libs/nngpp"]
+	path = libs/nngpp
+	url = https://github.com/cwzx/nngpp
