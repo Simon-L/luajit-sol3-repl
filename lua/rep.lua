@@ -41,7 +41,7 @@ end
 print('Lua REPL ' .. tostring(repl.VERSION))
 repl:prompt(1)
 for line in repl:lines() do
-  local level = repl:handleline(line)
+  local level = soljit_handleline(repl, line)
   repl:prompt(level)
 end
 repl:shutdown()
