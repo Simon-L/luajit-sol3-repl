@@ -8,11 +8,15 @@
 #include <cxxopts.hpp>
 #include <nngpp/nngpp.h>
 #include <nngpp/http/http.h>
+#include <base64.h>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 #define REST_URL "http://127.0.0.1:8888/api/eval"
 
 struct handler_data_t {
 	std::mutex* lua_mut;
+	sol::state* lua;
 };
 
 void rest_handle(nng_aio* a) try {
@@ -25,8 +29,15 @@ void rest_handle(nng_aio* a) try {
 
 	auto data = req.get_data();
 	printf("Got data: %s with size %u\n", data.data(), data.size());
-	printf("And handler data %d %d\n", hdata->a, hdata->b);
+
+	std::string data_code((const char*)data.data());
+	auto j = json::parse(data_code);
+	std::cout << j.dump(4) << std::endl;
+	// code2 = base64_decode(code2);
+	// printf("Decoded: %s\n", code2);
+
 	std::string code = "print('hi from handler')";
+	hdata->lua->script(code);
 
 	auto res = nng::http::make_res();
 	res.set_status(nng::http::status::ok);
@@ -138,7 +149,8 @@ int main(int argc, const char* argv[]) {
 
 
 	auto handler_data = handler_data_t{
-		&lua_mut
+		&lua_mut,
+		&lua
 	};
 
 	nng::url url(REST_URL);

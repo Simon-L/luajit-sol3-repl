@@ -38,15 +38,21 @@ add_custom_target(hererocks
 
 # ---- Declare executable ----
 
-add_executable(soljit_exe source/main.cpp)
+add_executable(soljit_exe source/main.cpp libs/cpp-base64/base64.cpp)
 add_executable(soljit::exe ALIAS soljit_exe)
 
 list(APPEND CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/prefix)
 find_package(nng)
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(JSON_Install OFF CACHE INTERNAL "")
+add_subdirectory(libs/json)
+target_link_libraries(soljit_exe PRIVATE nlohmann_json::nlohmann_json)
+
 add_subdirectory(libs/nngpp)
 target_link_libraries(soljit_exe PRIVATE nngpp)
 target_include_directories(soljit_exe PUBLIC "${PROJECT_SOURCE_DIR}/libs/nngpp/include")
+target_include_directories(soljit_exe PUBLIC "${PROJECT_SOURCE_DIR}/libs/cpp-base64")
 
 add_subdirectory(libs/cxxopts)
 target_link_libraries(soljit_exe PRIVATE cxxopts)
