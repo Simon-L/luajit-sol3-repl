@@ -27,6 +27,21 @@ cmake --build build -j16
 
 See the [BUILDING](BUILDING.md) document.
 
+# Usage
+
+This should be a pretty standard *decent* lua interpreter:
+```
+./soljit
+```
+
+There is a single route currently: `http://127.0.0.1:8888/api/eval` send POST request to this endpoint to execute the code in the REPL.  
+Request must contain the follow JSON data:
+```json
+{
+  "code": "<base64 encoded string>"
+}
+```
+
 # Contributing
 
 See the [CONTRIBUTING](CONTRIBUTING.md) document.
