@@ -28,15 +28,8 @@ void rest_handle(nng_aio* a) try {
 	const std::lock_guard<std::mutex> lock(*hdata->lua_mut);
 
 	auto data = req.get_data();
-	printf("Got data: %s with size %u\n", data.data(), data.size());
-
-	std::string data_code((const char*)data.data());
-	auto j = json::parse(data_code);
-	std::cout << j.dump(4) << std::endl;
-	// code2 = base64_decode(code2);
-	// printf("Decoded: %s\n", code2);
-
-	std::string code = "print('hi from handler')";
+	auto j = json::parse((const char*)data.data());
+	auto code = base64_decode(j["code"].get<std::string>());
 	hdata->lua->script(code);
 
 	auto res = nng::http::make_res();
