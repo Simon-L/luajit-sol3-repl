@@ -156,7 +156,6 @@ int main(int argc, const char* argv[]) {
 	server.add_handler( std::move(handler) );
 	try {
 		server.start();
-		printf("rest started!\n");
 	}
 	catch( const nng::exception& e ) {
 		// who() is the name of the nng function that produced the error

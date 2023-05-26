@@ -34,6 +34,8 @@ This should be a pretty standard *decent* lua interpreter:
 ./soljit
 ```
 
+![Example screenshot](./example.png)
+
 There is a single route currently: `http://127.0.0.1:8888/api/eval` send POST request to this endpoint to execute the code in the REPL.  
 Request must contain the follow JSON data:
 ```json
@@ -48,7 +50,7 @@ The `misc/` folder contains a shell script and a lua script to make this easy. T
 - Using the lua version: `cat script.lua | build/bin/lua misc/send-code.lua`
 
 The dependencies for send-code.lua are `lua-requests` and `lbase64`. Let's just install these locally in our build:
-```
+```bash
 source build/bin/activate
 luarocks install lua-requests
 luarocks install lbase64
