@@ -29,6 +29,7 @@ void rest_handle(nng_aio* a) try {
 
 	auto data = req.get_data();
 	auto j = json::parse((const char*)data.data());
+	// std::cout << j.dump(4) << std::endl;
 	auto code = base64_decode(j["code"].get<std::string>());
 	hdata->lua->script(code);
 
