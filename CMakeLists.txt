@@ -62,7 +62,6 @@ add_subdirectory(libs/sol2)
 target_link_libraries(soljit_exe PRIVATE sol2)
 
 set_target_properties(soljit_exe PROPERTIES BUILD_RPATH "./lib")
-set(INSTALL_RPATH "lolzi")
 target_link_libraries(soljit_exe PUBLIC ":libluajit-5.1.so.2")
 
 # add_custom_target(run ALL
