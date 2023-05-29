@@ -2,12 +2,9 @@
   "name": "send-selection",
   "main": "./lib/send-selection",
   "version": "0.0.0",
-  "description": "A short description of your package",
+  "description": "Send selection to some REST server (sends base64 encoded)",
   "keywords": [
   ],
-  "activationCommands": {
-    "atom-workspace": "send-selection:toggle"
-  },
   "repository": "https://github.com/atom/send-selection",
   "license": "MIT",
   "engines": {
