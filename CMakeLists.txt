@@ -74,6 +74,7 @@ target_link_libraries(soljit_exe PUBLIC ":libluajit-5.1.so.2")
 add_custom_target(run
   COMMAND ./${PROJECT_NAME}
   COMMENT "run ${PROJECT_NAME}"
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   VERBATIM
   DEPENDS soljit_exe
 )

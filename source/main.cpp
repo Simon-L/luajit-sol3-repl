@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <mutex>
+#include <fstream>
 
 #include <sol/sol.hpp>
 #include <cxxopts.hpp>
@@ -19,6 +20,17 @@ struct handler_data_t {
 	sol::state* lua;
 };
 
+// Hack to replace print, runs before executing
+std::string code_pre = R"(
+	___file = io.open ('output.log', 'w')
+	io.output(___file)
+	print = function(...) io.write(table.concat({...}, "\t")) end
+)";
+// Close the file, runs after executing
+std::string code_post = R"(
+	___file:close()
+)";
+
 void rest_handle(nng_aio* a) try {
 	nng::aio_view aio = a;
 	nng::http::req_view req = aio.get_input<nng_http_req>(0);
@@ -28,14 +40,73 @@ void rest_handle(nng_aio* a) try {
 	const std::lock_guard<std::mutex> lock(*hdata->lua_mut);
 
 	auto data = req.get_data();
-	auto j = json::parse((const char*)data.data());
-	// std::cout << j.dump(4) << std::endl;
+	// data.data() is raw data
+	std::ostringstream stdout_str;
+	stdout_str << "Got: " << (const char*)data.data() << std::endl;
+
+	unsigned request_error = 0;
+
+	json j = json::parse((const char*)data.data(), nullptr, false);
+	if (j.is_discarded())
+	{
+			request_error = 1; // JSON parse
+	}
+	stdout_str << j.dump(4) << std::endl;
+	if (!j["code"].is_string()) {
+		request_error = 2; // JSON missing/wrong type
+	}
 	auto code = base64_decode(j["code"].get<std::string>());
-	hdata->lua->script(code);
+
+	// Get a state view to access fields directly
+	sol::state_view tlua(*hdata->lua);
+	// Save current
+	// Calling io.output() returns the current stdout, also save print
+	auto real_output = tlua["io"]["output"]();
+	auto real_print = tlua["print"];
+	// Wrap script in pre/post to not clutter the interpreter stdout/stdin
+	hdata->lua->script(code_pre);
+	auto result = hdata->lua->safe_script(code, sol::script_pass_on_error);
+	sol::error err("");
+	if (!result.valid()) {
+		err = result;
+		request_error = 3; // lua
+	}
+
+	// Set previous state back
+	hdata->lua->script(code_post);
+	tlua["io"]["output"](real_output);
+	tlua["print"] = real_print;
+
+	auto stream = std::ifstream("output.log");
+  std::ostringstream sstr;
+  sstr << stream.rdbuf();
+  stdout_str << "Script io.output: " << sstr.str() << std::endl;
 
 	auto res = nng::http::make_res();
+	auto resj = json();
+	switch (request_error) {
+		case 0:
+			resj["status"] = "OK";
+			resj["output"] = sstr.str();
+			break;
+		case 1:
+			resj["status"] = "JSON parse";
+			break;
+		case 2:
+			resj["status"] = "JSON missing/wrong type";
+			break;
+		case 3:
+			resj["status"] =  "lua";
+			resj["what"] = err.what();
+			break;
+		default:
+		resj["status"] =  "fatal";
+			break;
+	}
+	// resj["stdout_str"] = stdout_str.str();
+	auto d = resj.dump();
+	res.copy_data(nng::view(d.data(), d.size()));
 	res.set_status(nng::http::status::ok);
-	res.set_header("Content-Length", "0");
 	aio.set_output(0, res.release());
 	aio.finish();
 }
