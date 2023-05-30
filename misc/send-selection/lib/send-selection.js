@@ -3,7 +3,7 @@
 import SendSelectionView from './send-selection-view';
 import { CompositeDisposable } from 'atom';
 
-const http = require('http');
+const get = require('simple-get')
 
 var config = require('../config.json')
 
@@ -60,7 +60,18 @@ export default {
     const code_base64 = Buffer.from(code).toString('base64')
     console.log(code_base64);
 
-    // TODO: implement using simple-get nodejs package
+    const opts = {
+      method: 'POST',
+      url: config.url,
+      body: {
+        code: code_base64
+      },
+      json: true
+    }
+    get.concat(opts, function (err, res, data) {
+      if (err) console.log("ERROR", err)
+      console.log(data) // `data` is an object
+    })
   },
 
   deactivate() {

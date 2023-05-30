@@ -3,13 +3,13 @@
   "main": "./lib/send-selection",
   "version": "0.0.0",
   "description": "Send selection to some REST server (sends base64 encoded)",
-  "keywords": [
-  ],
+  "keywords": [],
   "repository": "https://github.com/atom/send-selection",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
+    "simple-get": ">=4.0.0"
   }
 }
