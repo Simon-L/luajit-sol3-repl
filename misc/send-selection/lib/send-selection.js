@@ -76,11 +76,11 @@ export default {
       }
       if (!(typeof data.status === 'undefined')) {
         if (data.status == "lua") {
-          atom.notifications.addWarning(data.what)
+          atom.notifications.addWarning("Lua error", {detail: data.what})
         } else if (data.status != "OK") {
-          atom.notifications.addWarning(data.status)
+          atom.notifications.addWarning("Error", {detail: data.status})
         } else {
-          atom.notifications.addSuccess(data.output)
+          atom.notifications.addSuccess("Output", {detail: data.output})
         }
       }
     })
