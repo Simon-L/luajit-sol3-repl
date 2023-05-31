@@ -23,11 +23,13 @@ struct handler_data_t {
 // Hack to replace print, runs before executing
 std::string code_pre = R"(
 	___file = io.open ('output.log', 'w')
+	___oldprint = print
 	io.output(___file)
 	print = function(...) io.write(table.concat({...}, "\t")) end
 )";
 // Close the file, runs after executing
 std::string code_post = R"(
+	print = ___oldprint
 	___file:close()
 )";
 
@@ -62,7 +64,6 @@ void rest_handle(nng_aio* a) try {
 	// Save current
 	// Calling io.output() returns the current stdout, also save print
 	auto real_output = tlua["io"]["output"]();
-	auto real_print = tlua["print"];
 	// Wrap script in pre/post to not clutter the interpreter stdout/stdin
 	hdata->lua->script(code_pre);
 	auto result = hdata->lua->safe_script(code, sol::script_pass_on_error);
@@ -75,7 +76,6 @@ void rest_handle(nng_aio* a) try {
 	// Set previous state back
 	hdata->lua->script(code_post);
 	tlua["io"]["output"](real_output);
-	tlua["print"] = real_print;
 
 	auto stream = std::ifstream("output.log");
   std::ostringstream sstr;
@@ -103,7 +103,7 @@ void rest_handle(nng_aio* a) try {
 		resj["status"] =  "fatal";
 			break;
 	}
-	// resj["stdout_str"] = stdout_str.str();
+	resj["stdout_str"] = stdout_str.str();
 	auto d = resj.dump();
 	res.copy_data(nng::view(d.data(), d.size()));
 	res.set_status(nng::http::status::ok);

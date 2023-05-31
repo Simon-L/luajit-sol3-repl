@@ -1,6 +1,6 @@
 {
   "atom-workspace": {
-    "ctrl-alt-o": "send-selection:send-selection",
+    "alt-shift-enter": "send-selection:send-selection",
     "alt-enter": "send-selection:send-line"
   }
 }

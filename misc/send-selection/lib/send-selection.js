@@ -26,8 +26,6 @@ export default {
       'send-selection:send-selection': () => this.send_selection(),
       'send-selection:send-line': () => this.send_line()
     }));
-
-    console.log("activated");
   },
 
   send_line() {
@@ -35,7 +33,6 @@ export default {
     if (editor) {
       const p = editor.getCursorBufferPosition()
       const line = editor.lineTextForBufferRow(p.row)
-      console.log(line);
       this.sendhttp(line)
     }
 
@@ -44,21 +41,22 @@ export default {
   send_selection() {
     const editor = atom.workspace.getActiveTextEditor()
     if (editor) {
+      editorView = atom.views.getView(editor)
+      atom.commands.dispatch(editorView, 'editor:select-line')
       const selection = editor.getSelectedBufferRanges()
       code = ""
       editor.getSelections().forEach((item, i) => {
-          console.log(item.getText())
           code += item.getText() + "\n"
       });
-      console.log(code);
-      this.sendhttp(code)
+      if (code !=  "") {
+        this.sendhttp(code)
+      }
     }
   },
 
+
   sendhttp(code) {
-    console.log("As base64:");
     const code_base64 = Buffer.from(code).toString('base64')
-    console.log(code_base64);
 
     const opts = {
       method: 'POST',
@@ -69,8 +67,22 @@ export default {
       json: true
     }
     get.concat(opts, function (err, res, data) {
-      if (err) console.log("ERROR", err)
-      console.log(data) // `data` is an object
+      if (err) {
+        atom.notifications.addError("Is soljit running? Is the URL in config.json correct?", {detail: err})
+        return
+      }
+      if (!(typeof data.stdout_str === 'undefined')) {
+        console.log(data.stdout_str)
+      }
+      if (!(typeof data.status === 'undefined')) {
+        if (data.status == "lua") {
+          atom.notifications.addWarning(data.what)
+        } else if (data.status != "OK") {
+          atom.notifications.addWarning(data.status)
+        } else {
+          atom.notifications.addSuccess(data.output)
+        }
+      }
     })
   },
 
@@ -78,7 +90,6 @@ export default {
     this.modalPanel.destroy();
     this.subscriptions.dispose();
     this.sendSelectionView.destroy();
-    console.log("deactivated");
   },
 
   serialize() {
