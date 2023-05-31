@@ -44,8 +44,9 @@ Request must contain the follow JSON data:
 }
 ```
 
-The `misc/` folder contains a shell script and a lua script to make this easy. The `misc/send-selection` folder is an unfinished package for the Pulsar editor to send selected line(s) to the interpreter, aka. livecoding style!.
+The `misc/` folder contains a shell script and a lua script to make this easy and a Pulsar package in `misc/send-selection`
 
+- `misc/send-selection`: use this package in Pulsar to send current line with `alt-enter` and `alt-shift-enter` to send selected line(s) to the interpreter, aka. livecoding style!.
 - Using the shell script: `cat script.lua | ./misc/send-code.sh`
 - Using the lua version: `cat script.lua | build/bin/lua misc/send-code.lua`
 
